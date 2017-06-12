@@ -1,31 +1,15 @@
-require 'logger'
-
 module Imprint
   class Middleware
 
     def self.set_request_trace_id(rack_env)
-      trace_id = rack_env[Imprint::Tracer::TRACER_HEADER] || rack_env[Imprint::Tracer::RAILS_REQUEST_ID]
+      trace_id = rack_env[Imprint::Tracer::TRACER_HEADER]
       if trace_id.nil?
         trace_id = Imprint::Tracer.rand_trace_id
-        logger.info("trace_status=initiated trace_id=#{trace_id}")
       end
       Imprint::Tracer.set_trace_id(trace_id, rack_env)
-      trace_id
     end
 
-    def self.logger=(logger)
-      @logger = logger
-    end
-
-    def self.logger
-      @logger ||= if defined?(Rails.logger)
-                    Rails.logger
-                  else
-                    Logger.new(STDOUT)
-                  end
-    end
-
-    def initialize(app, opts = {})
+    def initialize(app, _opts = {})
       @app = app
     end
 
